@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enhanced Router Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --accent-alpha: rgba(92, 77, 255, 0.2);
+            --crypto-list-radius: 12px;
+            --crypto-item-radius: 8px;
+            --crypto-icon-size: 32px;
+            --crypto-hover-transform: scale(99%);
+            --color-accent: #6c5ce7;
+        }
+
+        .theme-light, .light-mode {
+            --primary: #f8f9fa;
+            --secondary: #FFFFFF;
+            --secondary-2: #F8FAFC;
+            --thirdly: #e2e4e6;
+            --accent: #6c5ce7;
+            --surface: #F1F5F9;
+            --text: #0F172A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+
+            --modal-title: #475569;
+      --modal-bg: #F1F5F9;
+        }
+
+        .theme-dark, .dark-mode {
+            --primary: #0F172A;
+            --secondary: #1E293B;
+            --secondary-2: #1c2430;
+            --thirdly: #293851;
+            --accent: #6c5ce7;
+            --surface: #334155;
+            --text: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --border: #2D3748;
+            --shadow-color: rgba(0, 0, 0, 0.25);
+            --modal-title: #979ba0;
+      --modal-bg: #131a28;
+        }
+
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem 1rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .navbar {
+            background-color: var(--accent) !important;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--secondary) !important;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: var(--secondary-2);
+            color: var(--text-secondary) !important;
+        }
+
+        .route-view {
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .route-view.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .card {
+            background-color: var(--secondary);
+            border-color: var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            background-color: var(--accent) !important;
+            color: var(--secondary) !important;
+            border-bottom: none;
+            border-top-left-radius: var(--radius-md);
+            border-top-right-radius: var(--radius-md);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        /* Existing animations */
+        .slidein { animation: slidein 0.5s forwards; }
+        .slideinleft { animation: slideinleft 0.5s forwards; }
+        .slideinright { animation: slideinright 0.5s forwards; }
+        .slideindown { animation: slideindown 0.5s forwards; }
+        .slideinup { animation: slideinup 0.5s forwards; }
+        .fade { animation: fade 0.5s forwards; }
+
+        @keyframes slidein { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideinleft { 
+            from { opacity: 0; transform: translateX(-100%); } 
+            to { opacity: 1; transform: translateX(0); } 
+        }
+        @keyframes slideinright { 
+            from { opacity: 0; transform: translateX(100%); } 
+            to { opacity: 1; transform: translateX(0); } 
+        }
+        @keyframes slideindown { 
+            from { opacity: 0; transform: translateY(-100%); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes slideinup { 
+            from { opacity: 0; transform: translateY(100%); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes fade { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+
+        /*modals*/
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.show {
+      opacity: 0.75;
+    }
+
+    .modal {
+      /*border-radius: var(--radius-lg);
+      padding: 4px;
+      */
+      width: 100%;
+      backdrop-filter: blur(3px);
+
+    }
+
+    .modal-content {
+      background-color: var(--secondary);
+      background-color: var(--modal-bg);
+      border-radius: var(--radius-lg);
+    }
+
+    .modal-header {
+      border-bottom: unset;
+      padding: .75rem 1.5rem;
+    }
+
+    .modal-title {
+      color: var(--modal-title);
+      font-weight: 600;
+      margin-top: 0.1rem;
+    }
+
+    .modal .close {
+      color: var(--text);
+      opacity: 0.7;
+    }
+
+    .theme-dark .modal-header .btn-close {
+      filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    .modal-footer {
+      border-top: unset;
+    }
+    </style>
+</head>
+<body class="theme-light">
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Router Demo</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">	
+                    <a href="#/modal/profile" class="nav-link"><i class="bi bi-person-circle me-2"></i>Profile Modal</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#/hejsan" class="nav-link"><i class="bi bi-emoji-smile me-2"></i>Hej</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#/users/0x78575b33d4007EC3226157Ece3257995D3989C53/profile/1GHbqQ1h2ddNz5WfauWwoe7YB2eR798Noq/section" class="nav-link">
+                        <i class="bi bi-person-badge me-2"></i>User Profile
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-box me-2"></i>Products
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#/products/home/furniture/product/123">Product Details</a></li>
+                        <li><a class="dropdown-item" href="#/products/home/furniture/chairs/3535/">Detailed Product</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#/wallet/balance" class="nav-link"><i class="bi bi-wallet2 me-2"></i>Wallet Balance</a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <button class="btn btn-outline-light" data-route-navigate="/products/home/furniture/product/123">
+                    <i class="bi bi-box me-2"></i>Product Details
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Theme Toggle -->
+<div class="theme-toggle">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="themeSwitch">
+        <label class="form-check-label" for="themeSwitch">Dark Mode</label>
+    </div>
+</div>
+
+<div id="app" class="container-fluid">
+    <!-- User Profile View -->
+    <div data-route="/users/:username/profile/:profileType/:section" data-route-transition="slideinleft" class="route-view card shadow-sm">
+        <div class="card-header">
+            <h2 class="card-title mb-0">My Profile</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-2"><strong>User ID:</strong> <span data-segment="2" class="text-muted"></span></p>
+                    <p class="mb-2"><strong>Username:</strong> <span data-segment="username" class="text-primary"></span></p>
+                    <p class="mb-2"><strong>Profile Type:</strong> <span data-segment="profileType" class="text-success"></span></p>
+                    <p class="mb-2"><strong>Section:</strong> <span data-segment="section" class="text-info"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details View -->
+    <div data-route="/products/:home/:furniture/:product/:id" data-route-transition="slideinup" class="route-view card shadow-sm">
+        <div class="card-header">
+            <h2 class="card-title mb-0">Product Details</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-2"><strong>Home:</strong> <span data-segment="home" class="text-muted"></span></p>
+                    <p class="mb-2"><strong>Furniture:</strong> <span data-segment="furniture" class="text-primary"></span></p>
+                    <p class="mb-2"><strong>Product:</strong> <span data-segment="product" class="text-success"></span></p>
+                    <p class="mb-2"><strong>ID:</strong> <span data-segment="id" class="text-info"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hejsan View -->
+    <div data-route="/hejsan" data-route-transition="slideinup" class="route-view card shadow-sm">
+        <div class="card-header">
+            <h2 class="card-title mb-0">Hejsan</h2>
+        </div>
+        <div class="card-body">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
+                <i class="bi bi-person-circle me-2"></i>Launch Profile Modal
+            </button>
+        </div>
+    </div>
+
+    <!-- Wallet Balance View -->
+    <div data-route="/wallet/balance" data-route-transition="slideinright" class="route-view card shadow-sm">
+        <div class="card-header">
+            <h2 class="card-title mb-0">Wallet Balance</h2>
+        </div>
+        <div class="card-body">
+            <p class="h4 text-success">
+                <i class="bi bi-currency-dollar me-2"></i>
+                Current Balance: $1,234.56
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Profile Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                View and edit your profile details here.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-route="/modal/:id" data-route-transition="slideinup" class="modal fade" id="profileModal2" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Profile Details2</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Modal with a specific :ID param in urlhash 
+                <p class="mb-2">modal param <strong>:ID</strong> -> <span data-segment="id" ></span></p>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="./vanillajsrouter.js"></script>
+<script src="./vanilla-js-router-manager.js"></script>
+<script>
+//init viewManager
+const viewManager = new vanillaJSRouterViewManager();
+
+
+const showModal = (matches, params, route) => {
+	//use viewManager here
+        console.log('showModal params: ' ,  matches, params, route);
+        console.log(`Modal route triggered`);
+        console.log(`Modal ID: ${params.id}`);
+        viewManager.handleRoute(route, params);
+
+        const modal = new bootstrap.Modal(document.getElementById('profileModal2'));
+                modal.show();
+                console.log('modal profile: ', params);
+    }
+
+
+
+
+// Add parameterized routes
+Router
+    .add('/hejsan', (matches, params, route) => {
+    	          viewManager.handleRoute(route, params);
+            
+
+        console.log(`Hejsan route triggered`, matches, params, route);
+    })
+    .add('/modal/:id', showModal )
+    
+    .add('/users/:username/profile/:profileType/:section', (matches, params, route) => {
+        //use viewManager here
+        console.log(`User Profile route triggered`, matches, params, route);
+        console.log('params:', params);
+        console.log(`Username: ${params.username}`);
+        console.log(`Profile Type: ${params.profileType}`);
+        console.log(`Section: ${params.section}`);
+        viewManager.handleRoute(route, params, {'show': ['data-route="/wallet/balance"']});
+    })
+    .add('/products/:home/:furniture/:product/:id', (matches, params, route) => {
+    	//use viewManager here
+        console.log(`Product Details route triggered`, matches, params, route);
+        console.log(`Product params:`, params);
+        viewManager.handleRoute(route, params);
+    })
+    .add('/wallet/balance', (matches, params, route) => {
+    	//use viewManager here
+        console.log(`Wallett Details route triggered`, matches, params, route);
+        viewManager.handleRoute(route, params);
+    })
+    .add('.*', (data) => {
+    	//use viewManager here
+        console.warn('Catch-all route triggered:', data);
+    })
+    .beforeAll(() => {
+        console.log('beforeAll');
+    })
+    .apply()
+    .start()
+    .navigate('/hejsan');
+
+    
+    
+    document.addEventListener('click', function (event) {
+	    // Check if the clicked element (or one of its ancestors) has the attribute `data-route-navigate`
+	    const target = event.target.closest('[data-route-navigate]');
+	    if (!target) return; // If no such element was clicked, do nothing
+
+	    event.preventDefault(); // Prevent default navigation behavior
+
+	    const url = target.getAttribute('data-route-navigate'); // Get the URL from the attribute
+	    if (url) {
+	        Router.navigate(url); // Call the navigate function with the URL
+	    } else {
+	        console.warn('No URL specified in data-route-navigate attribute.');
+	    }
+		});
+		
+$(document).ready(function() {
+    const $body = $('body');
+    const $themeToggle = $('.theme-toggle');
+
+    // Load theme preference
+    if (localStorage.getItem('theme') === 'dark') {
+        $body.addClass('dark-mode');
+        $themeToggle.prop('checked', true);
+    }
+
+    // Theme toggle
+    $themeToggle.on('change', function() {
+        $body.toggleClass('dark-mode');
+        localStorage.setItem('theme', $body.hasClass('dark-mode') ? 'dark' : 'light');
+    });
+});
+</script>
+
+
+</body>
+</html>
